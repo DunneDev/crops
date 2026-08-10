@@ -12,6 +12,13 @@ module Builtins
 
       active_ops_yml = resolve_ops_yml(prev_tokens)
 
+      last_token = prev_tokens.last?
+
+      if last_token && (active_ops_yml.actions.has_key?(last_token) || BUILTINS.has_key?(last_token))
+        complete_files(curr)
+        return true
+      end
+
       BUILTINS.each_key do |c|
         puts c
       end
@@ -40,6 +47,16 @@ module Builtins
       end
 
       result
+    end
+
+    private def complete_files(curr : String)
+      Dir.children(Dir.current).each do |entry|
+        unless curr.empty? || entry.starts_with?(curr)
+          next
+        end
+
+        puts entry
+      end
     end
 
     private def resolve_ops_yml(prev_tokens : Array(String))
