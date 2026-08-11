@@ -1,3 +1,5 @@
+require "builtins/helpers/templates"
+
 module Builtins
   class Completion < Builtin
     def run
@@ -14,22 +16,29 @@ module Builtins
 
       last_token = prev_tokens.last?
 
+      completions = [] of String
+
       if last_token && (active_ops_yml.actions.has_key?(last_token) || BUILTINS.has_key?(last_token))
-        complete_files(curr)
-        return true
+        completions = complete_files(curr)
+      else
+        BUILTINS.each_key do |c|
+          completions << c
+        end
+
+        active_ops_yml.forwards.each_key do |c|
+          completions << c
+        end
+
+        active_ops_yml.actions.each_key do |c|
+          completions << c
+        end
       end
 
-      BUILTINS.each_key do |c|
-        puts c
-      end
+      completions
+        .select { |c| curr.empty? || c.starts_with?(curr) }
+        .sort
+        .each { |c| puts c }
 
-      active_ops_yml.forwards.each_key do |c|
-        puts c
-      end
-
-      active_ops_yml.actions.each_key do |c|
-        puts c
-      end
       true
     end
 
@@ -50,13 +59,17 @@ module Builtins
     end
 
     private def complete_files(curr : String)
+      files = [] of String
+
       Dir.children(Dir.current).each do |entry|
         unless curr.empty? || entry.starts_with?(curr)
           next
         end
 
-        puts entry
+        files << entry
       end
+
+      files
     end
 
     private def resolve_ops_yml(prev_tokens : Array(String))
