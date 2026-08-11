@@ -37,7 +37,7 @@ module Builtins
       result = {} of String => String
 
       if args[0]? == "--"
-        args = args.skip(2) # skip -- and command name
+        args = args.skip(1) # skip -- and command name
       end
 
       args.each do |arg|
