@@ -1,10 +1,21 @@
-require "builtins/helpers/templates"
+require "builtins/helpers/completion_scripts"
 
 module Builtins
   class Completion < Builtin
     def run
       shell = @args[0]? || "bash"
       rest = @args[1..-1]? || [] of String
+
+      if rest[0]? == "--install"
+        script = completion_scripts[shell]?
+        if script
+          puts script
+        else
+          STDERR.puts "No completion script available for shell: #{shell}"
+          return false
+        end
+        return true
+      end
 
       parsed = parse_args(rest)
       curr = parsed["curr"]? || ""
@@ -107,6 +118,10 @@ module Builtins
       end
 
       nil
+    end
+
+    private def completion_scripts
+      Builtins::Helpers::CompletionScripts::COMPLETION_SCRIPTS
     end
   end
 end
