@@ -14,6 +14,12 @@ module Builtins
         suggestions=$(ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null)
 
         COMPREPLY=()
+
+        if [[ -z $suggestions ]]; then
+            compopt -o default
+            return 0
+        fi
+
         while read line; do
           [ -n "$line" ] && COMPREPLY+=("$line")
         done <<< "$suggestions"
@@ -39,8 +45,13 @@ module Builtins
         suggestions=$(ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null)
 
         local -a compadd_args
-        compadd_args=("${(f)suggestions}")
-        compadd -- "${compadd_args[@]}"
+
+        if (( $#suggestions > 0 )); then
+          compadd_args=("${(f)suggestions}")
+          compadd -- "${compadd_args[@]}"
+        else
+          _files
+        fi
       }
 
       compdef __ops_completion ops
@@ -51,7 +62,15 @@ module Builtins
         set -l curr (commandline -ct)
         set -l prev (commandline -cx)
 
-        ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null
+        set -l suggestions $(ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null)
+
+        if test (count $suggestions) -eq 0
+          complete -C"'' $curr"
+        else
+          for suggestion in $suggestions
+            echo $suggestion
+          end
+        end
       end
 
       complete -c ops -f -a "(__ops_completion)"

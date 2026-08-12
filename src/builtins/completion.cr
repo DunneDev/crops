@@ -38,22 +38,22 @@ module Builtins
         end
       end
 
+      if past_subcommands
+        return true
+      end
+
       completions = [] of String
 
-      if past_subcommands
-        completions = complete_files(curr)
-      else
-        BUILTINS.each_key do |c|
-          completions << c
-        end
+      BUILTINS.each_key do |c|
+        completions << c
+      end
 
-        active_ops_yml.forwards.each_key do |c|
-          completions << c
-        end
+      active_ops_yml.forwards.each_key do |c|
+        completions << c
+      end
 
-        active_ops_yml.actions.each_key do |c|
-          completions << c
-        end
+      active_ops_yml.actions.each_key do |c|
+        completions << c
       end
 
       completions
@@ -74,20 +74,6 @@ module Builtins
       end
 
       result
-    end
-
-    private def complete_files(curr : String)
-      files = [] of String
-
-      Dir.children(Dir.current).each do |entry|
-        unless curr.empty? || entry.starts_with?(curr)
-          next
-        end
-
-        files << entry
-      end
-
-      files
     end
 
     private def resolve_ops_yml(prev_tokens : Array(String))
