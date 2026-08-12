@@ -2,6 +2,10 @@ require "builtins/helpers/completion_scripts"
 
 module Builtins
   class Completion < Builtin
+		def self.description
+			"prints the tab completion script for the given shell"
+		end
+
     def run
       first = @args[0]? || "--"
       rest = @args[1..-1]? || [] of String
