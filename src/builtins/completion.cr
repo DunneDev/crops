@@ -25,11 +25,18 @@ module Builtins
 
       active_ops_yml = resolve_ops_yml(prev_tokens)
 
-      last_token = prev_tokens.last?
+      # Check if past commands in order to provide file completions
+      past_subcommands = false
+      prev_tokens.each do |token|
+        if active_ops_yml.actions.has_key?(token) || BUILTINS.has_key?(token)
+          past_subcommands = true
+          break
+        end
+      end
 
       completions = [] of String
 
-      if last_token && (active_ops_yml.actions.has_key?(last_token) || BUILTINS.has_key?(last_token))
+      if past_subcommands
         completions = complete_files(curr)
       else
         BUILTINS.each_key do |c|
