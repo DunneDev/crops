@@ -30,16 +30,12 @@ module Builtins
       active_ops_yml = resolve_ops_yml(prev_tokens)
 
       # Check if past commands in order to provide file completions
-      past_subcommands = false
       prev_tokens.each do |token|
         if active_ops_yml.actions.has_key?(token) || BUILTINS.has_key?(token)
           past_subcommands = true
-          break
-        end
-      end
 
-      if past_subcommands
-        return true
+          return true
+        end
       end
 
       completions = [] of String
