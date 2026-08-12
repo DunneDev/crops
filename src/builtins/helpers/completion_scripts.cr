@@ -11,7 +11,7 @@ module Builtins
         prev="${COMP_WORDS[*]:0:COMP_CWORD}"
 
         local suggestions
-        suggestions=$(ops completion bash -- "curr=$curr" "prev=$prev" 2>/dev/null)
+        suggestions=$(ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null)
 
         COMPREPLY=()
         while read line; do
@@ -36,7 +36,7 @@ module Builtins
         done
 
         local suggestions
-        suggestions=$(ops completion zsh -- "curr=$curr" "prev=$prev" 2>/dev/null)
+        suggestions=$(ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null)
 
         local -a compadd_args
         compadd_args=("${(f)suggestions}")
@@ -51,7 +51,7 @@ module Builtins
         set -l curr (commandline -ct)
         set -l prev (commandline -cx)
 
-        ops completion fish -- "curr=$curr" "prev=$prev" 2>/dev/null
+        ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null
       end
 
       complete -c ops -f -a "(__ops_completion)"

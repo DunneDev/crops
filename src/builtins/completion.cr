@@ -3,15 +3,15 @@ require "builtins/helpers/completion_scripts"
 module Builtins
   class Completion < Builtin
     def run
-      shell = @args[0]? || "bash"
+      first = @args[0]? || "--"
       rest = @args[1..-1]? || [] of String
 
-      if rest[0]? == "--install"
-        script = completion_scripts[shell]?
+      if first != "--"
+        script = completion_scripts[first]?
         if script
           puts script
         else
-          STDERR.puts "No completion script available for shell: #{shell}"
+          STDERR.puts "No completion script available for shell: #{first}"
           return false
         end
         return true
@@ -62,10 +62,6 @@ module Builtins
 
     private def parse_args(args : Array(String))
       result = {} of String => String
-
-      if args[0]? == "--"
-        args = args.skip(1) # skip -- and command name
-      end
 
       args.each do |arg|
         if index = arg.index('=')
