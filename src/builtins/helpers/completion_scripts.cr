@@ -29,8 +29,6 @@ module Builtins
       BASH_COMPLETION_SCRIPT
 
       ZSH_COMPLETION_SCRIPT = <<-ZSH_COMPLETION_SCRIPT
-      autoload -Uz compinit && compinit
-
       __ops_completion() {
         local curr
         curr="${words[CURRENT]}"

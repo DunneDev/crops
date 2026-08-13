@@ -7,17 +7,19 @@ module Builtins
 		end
 
     def run
-      first = @args[0]? || "--"
+      first = @args[0]?
       rest = @args[1..-1]? || [] of String
 
-      if first != "--"
+      # "--" is used for completions, if first arg isn't "--", it is the shell name
+      unless first == "--"
         script = completion_scripts[first]?
-        if script
-          puts script
-        else
+
+        unless script
           STDERR.puts "No completion script available for shell: #{first}"
           return false
         end
+
+        puts script
         return true
       end
 
@@ -29,30 +31,29 @@ module Builtins
 
       active_ops_yml = resolve_ops_yml(prev_tokens)
 
-      # Check if past commands in order to provide file completions
+      # Check if past all ops subcommands
+      # Early return without outputting to stdout tells the shell to provide default file completions
       prev_tokens.each do |token|
         if active_ops_yml.actions.has_key?(token) || BUILTINS.has_key?(token)
-          past_subcommands = true
-
           return true
         end
       end
 
-      completions = [] of String
+      suggestions = [] of String
 
       BUILTINS.each_key do |c|
-        completions << c
+        suggestions << c
       end
 
       active_ops_yml.forwards.each_key do |c|
-        completions << c
+        suggestions << c
       end
 
       active_ops_yml.actions.each_key do |c|
-        completions << c
+        suggestions << c
       end
 
-      completions
+      suggestions
         .select { |c| curr.empty? || c.starts_with?(curr) }
         .sort
         .each { |c| puts c }
@@ -75,6 +76,7 @@ module Builtins
     private def resolve_ops_yml(prev_tokens : Array(String))
       current_yml = @ops_yml
 
+      # Skip command name (ops)
       prev_tokens.skip(1).each do |token|
         forward_dir = current_yml.forwards[token]?
         unless forward_dir
