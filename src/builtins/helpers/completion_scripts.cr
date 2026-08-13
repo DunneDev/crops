@@ -65,7 +65,7 @@ module Builtins
         set -l suggestions $(ops completion -- "curr=$curr" "prev=$prev" 2>/dev/null)
 
         if test (count $suggestions) -eq 0
-          complete -C"'' $curr"
+          __fish_complete_path "$curr"
         else
           for suggestion in $suggestions
             echo $suggestion
