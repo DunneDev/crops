@@ -29,7 +29,7 @@ module Builtins
 
       prev_tokens = prev.split
 
-      active_ops_yml = resolve_ops_yml(prev_tokens)
+      active_ops_yml = resolve_ops_yml?(prev_tokens) || return false
       actions_and_aliases = get_actions_and_aliases(active_ops_yml)
 
       # Check if past all ops subcommands
@@ -74,14 +74,17 @@ module Builtins
       result
     end
 
-    private def resolve_ops_yml(prev_tokens : Array(String))
+    private def resolve_ops_yml?(prev_tokens : Array(String))
       current_yml = @ops_yml
 
       # Skip command name (ops)
       prev_tokens.skip(1).each do |token|
         forward_dir = current_yml.forwards[token]?
         unless forward_dir
-          return current_yml
+          token_is_action = get_actions_and_aliases(current_yml).includes?(token)
+          token_is_builtin = BUILTINS.has_key?(token)
+
+          return token_is_action || token_is_builtin ? current_yml : nil
         end
 
         root_dir = File.dirname(current_yml.absolute_path)
